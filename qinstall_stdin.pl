@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use File::Basename;
+
+my $_shell="/bin/bash";
 
 sub mywhich{
 	my $name=shift;
@@ -26,7 +29,7 @@ sub mychomp{
 	my $str=shift;
 	$str =~ s/\n$//;
 	$str =~ s/\r$//;
-	return $str;           
+	return $str;
 }
 
 sub joinargv{
@@ -54,22 +57,26 @@ my $file=$ARGV[0];
 open(my $fh,"<",$file) || die "cannot open file ".$file;
 my $line=<$fh>;
 close($fh);
-my $interpreter="";
+my $loader="";
+my $file_is_sh=0;
+my $shell=$_shell;
 if(substr($line,0,2) eq "#!"){
 	$line=mychomp($line);
 	my @exe=split(" ",substr($line,2));
 	my $exe=shift(@exe);
 	if($exe=~/\/env$/){$exe=mywhich(shift(@exe));}
-	$interpreter="-S ".$exe;
-}else{
-	$interpreter="-b y";
+	$file_is_sh = !($exe=~/csh$/)==!($_shell=~/csh$/);
+	$shell=$exe;
 }
-my $arg = 
-	"qsub -cwd ".#-v ".
-	#"\"".hash_to_string(%ENV)."\" ".
-	joinargv(@option).
-	$interpreter." ".
-	joinargv(@ARGV);
-
-#print $arg."\n";
-system($arg);
+if(!$file_is_sh&&$file=~/\..?sh$/){
+	$file_is_sh = !($file=~/\.csh$/)==!($_shell=~/csh$/);
+}
+$loader="-N \"".basename($file)."\" " if(!$n_specified);
+$loader.="-S ".$shell;
+if($file_is_sh){
+	system("qsub -cwd ".joinargv(@option)." ".$loader." ".joinargv(@ARGV));
+}else{
+	open(my $io,"| qsub -cwd ".joinargv(@option)." ".$loader);
+	print $io joinargv(@ARGV);
+	close($io);
+}

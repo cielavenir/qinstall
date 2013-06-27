@@ -37,9 +37,15 @@ sub joinargv{
 
 $ARGV[0] || die "qinstall args";
 my $i=0;
+my $n_specified=0;
 for(;$i<scalar(@ARGV);){
 	if(substr($ARGV[$i],0,1) ne "-"){last;}
-	if($ARGV[$i] eq "-pe"){$i+=3;}else{$i+=2;}
+	if($ARGV[$i] eq "-pe"){
+		$i+=3;
+	}else{
+		$n_specified=1 if($ARGV[$i] eq "-N");
+		$i+=2;
+	}
 }
 my @option=splice(@ARGV,0,$i);
 $ARGV[0]=mywhich($ARGV[0]);
@@ -54,8 +60,9 @@ if(substr($line,0,2) eq "#!"){
 	$line=mychomp($line);
 	my @exe=split(" ",substr($line,2));
 	my $exe=shift(@exe);
-	if(index($exe,"/env")>=0){$exe=mywhich(shift(@exe));}
-	$interpreter="-N \"".basename($file)."\" -b y \"".$exe."\" ".join(" ",@exe);
+	if($exe=~/\/env$/){$exe=mywhich(shift(@exe));}
+	$interpreter="-N \"".basename($file)."\" " if(!$n_specified);
+	$interpreter.="-b y \"".$exe."\" ".join(" ",@exe);
 }else{
 	$interpreter="-b y";
 }
