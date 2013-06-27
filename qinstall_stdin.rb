@@ -38,6 +38,11 @@ end
 #main
 if ARGV.empty?
 	puts "Usage: qinstall [qsub_options...] exe [args...]"
+	puts "useful options:"
+	puts "-l complex -q queue"
+	puts "-l s_vmem=NG -l mem_req=N (NGB memory will be used)"
+	puts "-i stdin -o stdout -e stderr"
+	
 	exit
 end
 i=0
