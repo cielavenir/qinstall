@@ -18,13 +18,6 @@ sub mywhich{
 	return undef;
 }
 
-sub hash_to_string{
-	my @ret=();
-	my %hash=@_;
-	foreach my $key(keys %hash){push(@ret,$key."=".$hash{$key});}
-	return join(",",@ret);
-}
-
 sub mychomp{
 	my $str=shift;
 	$str =~ s/\n$//;
@@ -65,8 +58,8 @@ if(substr($line,0,2) eq "#!"){
 	my @exe=split(" ",substr($line,2));
 	my $exe=shift(@exe);
 	if($exe=~/\/env$/){$exe=mywhich(shift(@exe));}
-	$file_is_sh = !($exe=~/csh$/)==!($_shell=~/csh$/);
-	$shell=$exe;
+	$file_is_sh = $exe=~/sh$/&&!($exe=~/csh$/)==!($_shell=~/csh$/);
+	$shell=$exe if $file_is_sh;
 }
 if(!$file_is_sh&&$file=~/\..?sh$/){
 	$file_is_sh = !($file=~/\.csh$/)==!($_shell=~/csh$/);

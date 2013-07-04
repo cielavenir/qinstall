@@ -54,21 +54,21 @@ my $file=$ARGV[0];
 open(my $fh,"<",$file) || die "cannot open file ".$file;
 my $line=<$fh>;
 close($fh);
-my $interpreter="";
+my $loader="";
 if(substr($line,0,2) eq "#!"){
 	$line=mychomp($line);
 	my @exe=split(" ",substr($line,2));
 	my $exe=shift(@exe);
 	if($exe=~/\/env$/){$exe=mywhich(shift(@exe));}
-	$interpreter="-S ".$exe;
+	$loader="-S ".$exe;
 }else{
-	$interpreter="-b y";
+	$loader="-b y";
 }
 my $arg = 
 	"qsub -cwd ".#-v ".
 	#"\"".hash_to_string(%ENV)."\" ".
 	joinargv(@option).
-	$interpreter." ".
+	$loader." ".
 	joinargv(@ARGV);
 
 #print $arg."\n";

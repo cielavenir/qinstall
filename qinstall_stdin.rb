@@ -93,7 +93,7 @@ else
 		shebang=shebang.mychomp[2..-1].split
 		exe=shebang.shift
 		exe=mywhich(shebang.shift) if exe.end_with?('/env')
-		file_is_sh=exe.end_with?('csh')==SHELL.end_with?('csh')
+		file_is_sh=exe.end_with?('sh')&&exe.end_with?('csh')==SHELL.end_with?('csh')
 		shell=exe if file_is_sh #We can directly execute file using exe.
 	end
 	if !file_is_sh&&file=~/\..?sh$/ #extension is sh
