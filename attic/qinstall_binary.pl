@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+#QInstall: Sun/Univa Grid Engine qsub Helper
+#(C) T. Yamada under 2-clause BSDL.
+
 use strict;
 use warnings;
 use File::Basename;
