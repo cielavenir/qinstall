@@ -64,7 +64,7 @@ shebang=f.gets
 f.close
 
 basename=File.basename($0)
-if basename.start_with?('qinstall_binary0')||basename.start_with?('qinstall_script')
+if basename.start_with?('qinstall_binary')||basename.start_with?('qinstall_script')
 	loader=''
 	if shebang[0,2]=='#!'
 		shebang=shebang.mychomp[2..-1].split
