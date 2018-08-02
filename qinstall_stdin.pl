@@ -40,7 +40,7 @@ sub qinstall{
 	my $n_specified=0;
 	for(;$i<scalar(@argv);){
 		if(substr($argv[$i],0,1) ne "-"){last;}
-		if($ARGV[$i] eq "-pe"){
+		if($argv[$i] eq "-pe"){
 			$i+=3;
 		}else{
 			$n_specified=1 if($argv[$i] eq "-N");

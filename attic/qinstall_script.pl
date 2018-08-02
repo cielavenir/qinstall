@@ -34,45 +34,53 @@ sub mychomp{
 
 sub joinargv{
 	if(!scalar(@_)){return "";}
-	return " \"".join("\" \"",@_)."\" ";
+	return join(' ',map {my $arg=$_; (grep {$_ eq $arg} qw(< > |)) ? $arg : "'".$arg."'"} @_);
 }
 
-$ARGV[0] || die "qinstall args";
-my $i=0;
-my $n_specified=0;
-for(;$i<scalar(@ARGV);){
-	if(substr($ARGV[$i],0,1) ne "-"){last;}
-	if($ARGV[$i] eq "-pe"){
-		$i+=3;
-	}else{
-		$n_specified=1 if($ARGV[$i] eq "-N");
-		$i+=2;
+sub qinstall{
+	my @argv=@_;
+	my $i=0;
+	my $n_specified=0;
+	for(;$i<scalar(@argv);){
+		if(substr($argv[$i],0,1) ne "-"){last;}
+		if($argv[$i] eq "-pe"){
+			$i+=3;
+		}else{
+			$n_specified=1 if($argv[$i] eq "-N");
+			$i+=2;
+		}
 	}
-}
-my @option=splice(@ARGV,0,$i);
-$ARGV[0]=mywhich($ARGV[0]);
-$ARGV[0] || die "file not found";
-my $file=$ARGV[0];
--x $file || die $file." not executable";
-open(my $fh,"<",$file) || die "cannot open file ".$file;
-my $line=<$fh>;
-close($fh);
-my $loader="";
-if(substr($line,0,2) eq "#!"){
-	$line=mychomp($line);
-	my @exe=split(" ",substr($line,2));
-	my $exe=shift(@exe);
-	if($exe=~/\/env$/){$exe=mywhich(shift(@exe));}
-	$loader="-S ".$exe;
-}else{
-	$loader="-b y";
-}
-my $arg = 
-	"qsub -cwd ".#-v ".
-	#"\"".hash_to_string(%ENV)."\" ".
-	joinargv(@option).
-	$loader." ".
-	joinargv(@ARGV);
+	my @option=splice(@argv,0,$i);
+	$argv[0]=mywhich($argv[0]);
+	$argv[0] || die "file not found";
+	my $file=$argv[0];
+	-x $file || die $file." not executable";
+	open(my $fh,"<",$file) || die "cannot open file ".$file;
+	my $line=<$fh>;
+	close($fh);
+	my $loader="";
+	if(substr($line,0,2) eq "#!"){
+		$line=mychomp($line);
+		my @exe=split(" ",substr($line,2));
+		my $exe=shift(@exe);
+		if($exe=~/\/env$/){$exe=mywhich(shift(@exe));}
+		$loader="-S ".$exe;
+	}else{
+		$loader="-b y";
+	}
+	my $arg = 
+		"qsub -cwd ".#-v ".
+		#"\"".hash_to_string(%ENV)."\" ".
+		joinargv(@option).
+		" ".$loader." ".
+		joinargv(@argv);
 
-#print $arg."\n";
-system($arg);
+	#print $arg."\n";
+	system($arg);
+}
+
+if(__FILE__ eq $0){
+	$ARGV[0] || die "qinstall args";
+	qinstall(@ARGV);
+}
+1;
