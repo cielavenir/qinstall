@@ -5,7 +5,9 @@
 #0.01.110927 qinstall_binary
 #0.02.1110xx qinstall_script (fixed passing shebang option)
 #0.03.130627 Rewritten in Ruby. qinstall_stdin (fixed S/UGE daemon's PATH handling)
+#0.04.181802 Unquote <>|
 
+# also determine which to use bashrc or cshrc
 SHELL='/bin/bash'
 
 def mywhich(name)
@@ -18,8 +20,8 @@ def mywhich(name)
 end
 
 class Hash
-	def tostring
-		self.map{|k,v|k.to_s+'='+v.to_s}*','
+	def tostring(delim=',') # ',' for UGE, '&' for query, ';' for cookie
+		self.map{|k,v|k.to_s+'='+v.to_s}*delim
 	end
 end
 
@@ -31,24 +33,25 @@ end
 class Array
 	def joinargv
 		return '' if self.empty?
-		return " \""+self.join("\" \"")+"\" "
+		return self.map(&:to_s).map{|e|%w(< > |).include?(e) ? e : "'"+e+"'"}.join(' ')
 	end
 end
 
 #main
 if ARGV.empty?
-	puts "Usage: qinstall [qsub_options...] exe [args...]"
-	puts "useful options:"
-	puts "-l complex -q queue"
-	puts "-l s_vmem=NG -l mem_req=N (NGB memory will be used)"
-	puts "-i stdin -o stdout -e stderr"
+	STDERR.puts "Usage: qinstall [qsub_options...] exe [args...]"
+	STDERR.puts "useful options:"
+	STDERR.puts "-l complex -q queue"
+	STDERR.puts "-l s_vmem=NG -l mem_req=N (NGB memory will be used)"
+	STDERR.puts "-i stdin -o stdout -e stderr"
+	STDERR.puts "note: in args, <>| must be QUOTED."
 	
-	exit
+	exit 1
 end
 i=0
 n_specified=false
 while i<ARGV.size
-	break if ARGV[i][0..0]!='-'
+	break if ARGV[i][0]!=?-
 	if ARGV[i]=='-pe'
 		i+=3
 	else

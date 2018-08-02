@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use File::Basename;
 
+# also determine which to use bashrc or cshrc
 my $_shell="/bin/bash";
 
 sub mywhich{
@@ -30,7 +31,7 @@ sub mychomp{
 
 sub joinargv{
 	if(!scalar(@_)){return "";}
-	return " \"".join("\" \"",@_)."\" ";
+	return join(' ',map {my $arg=$_; (grep {$_ eq $arg} qw(< > |)) ? $arg : "'".$arg."'"} @_);
 }
 
 $ARGV[0] || die "qinstall args";
@@ -73,6 +74,6 @@ if($file_is_sh){
 	system("qsub -cwd ".joinargv(@option)." ".$loader." ".joinargv(@ARGV));
 }else{
 	open(my $io,"| qsub -cwd ".joinargv(@option)." ".$loader);
-	print $io joinargv(@ARGV);
+	print $io joinargv(@ARGV)."\n";
 	close($io);
 }
