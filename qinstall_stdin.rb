@@ -98,7 +98,7 @@ def qinstall(argv,mode='qinstall_stdin')
 			system("qsub -cwd #{argv[0,i].joinargv} #{loader} #{argv[i..-1].joinargv}")
 		else
 			#file is not sh, so we need to wrap it with pseudo shell script.
-			IO.popen(['qsub','-cwd',argv[0,i].joinargv,loader],'w'){|io|
+			IO.popen(['qsub','-cwd',*argv[0,i],loader],'w'){|io|
 				io.puts(argv[i..-1].joinargv)
 				io.close_write
 			}

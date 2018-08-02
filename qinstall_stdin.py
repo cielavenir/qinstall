@@ -62,7 +62,7 @@ def qinstall(argv):
 		os.system("qsub -cwd %s %s %s"%(joinargv(argv[:i]),loader,joinargv(argv[i:])))
 	else:
 		#file is not sh, so we need to wrap it with pseudo shell script.
-		proc = subprocess.Popen(['qsub','-cwd',joinargv(argv[:i]),loader],stdin=subprocess.PIPE)
+		proc = subprocess.Popen(['qsub','-cwd']+argv[:i]+[loader],stdin=subprocess.PIPE)
 		proc.communicate(joinargv(argv[i:])+"\n")
 		proc.stdin.close()
 
