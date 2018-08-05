@@ -45,7 +45,7 @@ def qinstall(argv):
 	except IOError:
 		raise Exception("%s not readable"%file)
 
-	loader=''
+	loader=[]
 	shell=SHELL
 	file_is_sh=False
 	if shebang[:2]=='#!':
@@ -56,13 +56,13 @@ def qinstall(argv):
 		if file_is_sh: shell=exe #We can directly execute file using exe.
 	if not file_is_sh and re.match('\..?sh$',file): #extension is sh
 		file_is_sh=file.endswith('.csh')==SHELL.endswith('csh') #file seems to be sh. We can directly execute file using SHELL.
-	if not n_specified: loader='-N %s'%os.path.basename(file)
-	loader+="-S %s"%shell
+	if not n_specified: loader=['-N',os.path.basename(file)]
+	loader+=['-S',shell]
 	if file_is_sh:
-		os.system("qsub -cwd %s %s %s"%(joinargv(argv[:i]),loader,joinargv(argv[i:])))
+		os.system("qsub -cwd %s %s %s"%(joinargv(argv[:i]),joinargv(loader),joinargv(argv[i:])))
 	else:
 		#file is not sh, so we need to wrap it with pseudo shell script.
-		proc = subprocess.Popen(['qsub','-cwd']+argv[:i]+[loader],stdin=subprocess.PIPE)
+		proc = subprocess.Popen(['qsub','-cwd']+argv[:i]+loader,stdin=subprocess.PIPE)
 		proc.communicate(joinargv(argv[i:])+"\n")
 		proc.stdin.close()
 

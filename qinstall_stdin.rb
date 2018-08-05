@@ -79,7 +79,7 @@ def qinstall(argv,mode='qinstall_stdin')
 		#puts arg
 		system(arg)
 	else
-		loader=''
+		loader=[]
 		shell=SHELL
 		file_is_sh=false
 		if shebang[0,2]=='#!'
@@ -92,13 +92,18 @@ def qinstall(argv,mode='qinstall_stdin')
 		if !file_is_sh&&file=~/\..?sh$/ #extension is sh
 			file_is_sh=file.end_with?('.csh')==SHELL.end_with?('csh') #file seems to be sh. We can directly execute file using SHELL.
 		end
-		loader=%Q(-N "#{File.basename(file)}" ) if !n_specified
-		loader+="-S #{shell}"
+		loader=['-N',File.basename(file)] if !n_specified
+		loader+=['-S',shell]
 		if file_is_sh
-			system("qsub -cwd #{argv[0,i].joinargv} #{loader} #{argv[i..-1].joinargv}")
+			system("qsub -cwd #{argv[0,i].joinargv} #{loader.joinargv} #{argv[i..-1].joinargv}")
 		else
 			#file is not sh, so we need to wrap it with pseudo shell script.
-			IO.popen(['qsub','-cwd']+argv[0,i]+[loader],'w'){|io|
+			if RUBY_VERSION>='1.9'
+				popenarg=['qsub','-cwd']+argv[0,i]+loader
+			else
+				popenarg="qsub -cwd #{ARGV[0,i].joinargv} #{loader.joinargv}"
+			end
+			IO.popen(popenarg,'w'){|io|
 				io.puts(argv[i..-1].joinargv)
 				io.close_write
 			}
