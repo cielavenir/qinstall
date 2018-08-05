@@ -2,13 +2,6 @@
 #QInstall: Sun/Univa Grid Engine qsub Helper
 #(C) T. Yamada under 2-clause BSDL.
 
-#0.01.110927 qinstall_binary
-#0.02.1110xx qinstall_script (fixed passing shebang option)
-#0.03.130627 Rewritten in Ruby. qinstall_stdin (fixed S/UGE daemon's PATH handling)
-#0.04.180802 Unquote <>|. Added Python edition.
-#0.10.180802 qinstall can be required.
-#0.11.180806 fixed Ruby1.8
-
 # also determine which to use bashrc or cshrc
 SHELL='/bin/bash'
 
